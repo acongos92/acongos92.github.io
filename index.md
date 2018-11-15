@@ -35,8 +35,23 @@ call it bookshelf.proto. The source for the file looks like this
         message Book {
             required string name = 1; 
             required string author = 2;
-            optional Genre = 3 [default = SCIFI];
+            optional Genre genre = 3 [default = SCIFI];
         }
 
-        repeated Book = 2;
+        repeated Book books = 2;
     }
+
+The syntax likely seems familiar, and will be covered in a little more detail later. For now, you can think of a message as an "object" (though it 
+cant be used as one yet) for our bookshelf message we first provide a string field called color (every book shelf should have a color after all), there
+are many other data types, including int32, bool, and you can get the full list from our provided sources. we define a nested message called book, again providing 
+a few string fields, and an optional genre. The difference between optional and required is that a value for a required field must be provided or a message will not 
+be considered initialized (and it could not be parsed or converted to a string). Optional, as the name suggests, is not required. optional fields can have a default 
+value set, or will be given a default value by the compiler. repeated simply indicates that we could have 0 or more of a particular element.
+finally, the " =1" or "=2" markers provide a unique tag that the field uses in binary encoding.   
+
+so, now that we have our .proto file and understand it a little, it's time to compile and use it with this command 
+
+    protoc -I=%DIR% --python_out=%DIR% %DIR%\bookshelf.proto
+
+where %DIR% is a previously set variable in the terminal (so as an example it could be C:\\Users\\you\\protoBuffTutorial)
+
