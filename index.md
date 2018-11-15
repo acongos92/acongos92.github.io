@@ -53,5 +53,10 @@ so, now that we have our .proto file and understand it a little, it's time to co
 
     protoc -I=%DIR% --python_out=%DIR% %DIR%\bookshelf.proto
 
-where %DIR% is a previously set variable in the terminal (so as an example it could be C:\\Users\\you\\protoBuffTutorial)
+where %DIR% is a previously set variable in the terminal (so as an example it could be C:\\Users\\you\\protoBuffTutorial). In any case, the output of this command will be 
+a file called addressbook_pb2.py, this file will contain class definitions (aka usable python objects) that you can now use in your programs. At this point, you're probably 
+asking whats the advantage here, why not just use a python class and not bother with this step. Well, within python programs that would work fine, but if you need to serialize
+this data (and say share it with a java or c++ program) it will be challenging, where as with this protocol buffer, any supported language could access and use your serialized 
+data with no additional steps. With this advantage in mind, lets put together a simple python program, that lets you add books to a bookshelf stored in a file, and print out 
+all the books currently on the shelf in that file
 
