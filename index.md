@@ -57,6 +57,48 @@ where %DIR% is a previously set variable in the terminal (so as an example it co
 a file called addressbook_pb2.py, this file will contain class definitions (aka usable python objects) that you can now use in your programs. At this point, you're probably 
 asking whats the advantage here, why not just use a python class and not bother with this step. Well, within python programs that would work fine, but if you need to serialize
 this data (and say share it with a java or c++ program) it will be challenging, where as with this protocol buffer, any supported language could access and use your serialized 
-data with no additional steps. With this advantage in mind, lets put together a simple python program, that lets you add books to a bookshelf stored in a file, and print out 
-all the books currently on the shelf in that file
+data with no additional steps. With this advantage in mind, lets put together a simple python program, that lets you create a bookshelf, then add books to it.
 
+
+    import bookshelf_pb2
+    import sys
+    # builds and returns new empty bookshelf object with color attribute as color 
+    def getNewBookshelf (color):
+        return bookshelf_pb2.Bookshelf(color = color)
+
+    def buildNewBook(book, title, author):
+        book.name = title
+        book.author = author
+
+    #dont need to do this normally, this is to illustrate serialization/deserialization
+    def printBookShelf(bookShelfString):
+        tempShelf = bookshelf_pb2.Bookshelf()
+        tempShelf.ParseFromString(bookShelfString)
+        print(tempShelf)
+
+    #
+    # Main Procedure gets user input, builds a bookshelf object, adds a book to it, serializes the bookshelf and prints the serialized string
+    #
+    color = input("enter a color for your bookshelf: ")
+    shelf = getNewBookshelf(color)
+    while True:
+        newTitle = input("Input a book title: ")
+        newAuthor = input("Input the author: ")
+        newGenre = input("Input a genre (hint try scifi): ")
+        newBook = shelf.books.add()
+        if newGenre == "scifi":
+            newBook.genre = shelf.SCIFI
+        else:
+            newBook.genre = shelf.NOT_SCIFI
+        buildNewBook(newBook, newTitle, newAuthor)
+        print("bookshelf {")
+        printBookShelf(shelf.SerializeToString())
+
+As you can see, most of the code looks as if we're interacting with any normal python object. You can copy paste this code to see exactly 
+how it works, but simply it builds a new bookshelf, and lets you add books with types to it. What we would like to draw attention to is 
+the serialization of the Bookshelf object. this creates a serialized string, which is then printed in printBookShelf. For demonstration purposes 
+a new object is constructed from the string passed to PrintBookShelf, and then the new bookshelf object is printed. This is meant to highlight 
+the power of protocol buffers, any data you serialize could be read by any program with access to this protocol buffer regardless of language 
+or implementation details. The usefullness of this should become even more clear when we talk about gRPC. 
+
+There are of course many more useful methods and features of protocol buffers, but this covers the essential setup and basic ideas.
