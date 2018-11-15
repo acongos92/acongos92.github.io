@@ -13,8 +13,30 @@ python you can head [here](https://www.python.org/), and if you would rather wor
 support many, you can check those out on the previously mentioned source
 
 The first thing you will need to utilize protocol buffers is the protocol buffer compiler, you can get it [here](https://github.com/protocolbuffers/protobuf/releases/tag/v3.6.1)
-for simplest use, grab the precompiled bianry (either protoc-3.6.1-win32.zip, or the osx or linux binary depending on your OS)
+for simplest use, grab the precompiled binary (either protoc-3.6.1-win32.zip, or the osx or linux binary depending on your OS)
 after downloading and extracting the file in a directory of your choice, make sure it gets added to your path (on windows this means setting
 an environment variable) so you can reference the compiler, protoc, from a terminal.
 
-so we have the protocol buffer compuler 
+so we have the protocol buffer compiler set up, next thing we need is a .proto file for it to compile. To keep things simple, create a directory
+that will house all of the files you plan to use in this tutorial, lets call protoBuffTutorial. In this directory lets create our .proto file, 
+call it bookshelf.proto. The source for the file looks like this
+
+    syntax = "proto2";
+
+    package protobufftutorial;
+
+    message Bookshelf {
+        required string color = 1; 
+
+        enum Genre {
+            SCIFI = 0;
+            NOT_SCIFI = 1;
+        }
+        message Book {
+            required string name = 1; 
+            required string author = 2;
+            optional Genre = 3 [default = SCIFI];
+        }
+
+        repeated Book = 2;
+    }
