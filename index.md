@@ -62,7 +62,8 @@ data with no additional steps. With this advantage in mind, lets put together a 
 
     import bookshelf_pb2
     import sys
-    # builds and returns new empty bookshelf object with color attribute as color 
+    # builds and returns new empty bookshelf object 
+    # with color attribute as color 
     def getNewBookshelf (color):
         return bookshelf_pb2.Bookshelf(color = color)
 
@@ -70,14 +71,16 @@ data with no additional steps. With this advantage in mind, lets put together a 
         book.name = title
         book.author = author
 
-    #dont need to do this normally, this is to illustrate serialization/deserialization
+    # dont need to do this normally, 
+    # this is to illustrate serialization/deserialization
     def printBookShelf(bookShelfString):
         tempShelf = bookshelf_pb2.Bookshelf()
         tempShelf.ParseFromString(bookShelfString)
         print(tempShelf)
 
     #
-    # Main Procedure gets user input, builds a bookshelf object, adds a book to it, serializes the bookshelf and prints the serialized string
+    # Main Procedure gets user input, builds a bookshelf object, adds a 
+    # book to it, serializes the bookshelf and prints the serialized string
     #
     color = input("enter a color for your bookshelf: ")
     shelf = getNewBookshelf(color)
