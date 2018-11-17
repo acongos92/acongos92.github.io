@@ -213,4 +213,4 @@ And you are all set!! on a new command window, run your greeting_server
     $ python greeter_server.py
 In another terminal, run the client
     
-    $ python greeter_client.py
+    $ python greeter_client.py sampleText
