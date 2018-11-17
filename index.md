@@ -105,3 +105,112 @@ the power of protocol buffers, any data you serialize could be read by any progr
 or implementation details. The usefullness of this should become even more clear when we talk about gRPC. 
 
 There are of course many more useful methods and features of protocol buffers, but this covers the essential setup and basic ideas.
+
+## Hello world using gRPC
+
+Trying to do gRPC in Java is way more complicated than doing it python. So as a beginner, this should be a good place to start.
+
+## Set up gRPC in python
+Ensure you have pip version 9.0.1 or higher:
+
+    $ python -m pip install --upgrade pip
+Install gRPC:
+
+    $ python -m pip install grpcio
+ Install gRPC tools. Python’s gRPC tools include the protocol buffer compiler protoc and the special plugin for generating server and client code from .proto service definitions. 
+ 
+    $ python -m pip install grpcio-tools googleapis-common-protos
+
+Now you are all set.
+You define gRPC services in ordinary proto files, with RPC method parameters and return types specified as protocol buffer messages.
+Lets begin with a hello world example. The protobuf tutorial above should help you understand the below snippets. We begin by writing a proto file for the Request, Response and the service methods. As mentioned earlier, the proto files help to establish the contract between the client and the server. So this is all that is needed in the contract.
+Lets say you want to define a Greeter service that has 2 methods - SayHello and SayHelloAgain where both of the methods accept HelloRequest and retrn HelloResponse. So you define the helloworld.proto file as : 
+
+    // The greeter service definition.
+    service Greeter {
+    // Sends a greeting
+    rpc SayHello (HelloRequest) returns (HelloReply) {}
+    //sends another greeting
+    rpc SayHelloAgain (HelloRequest) returns (HelloReply) {}
+    }
+
+    // The request message containing the user's name.
+    message HelloRequest {
+      string name = 1;
+    }
+
+    // The response message containing the greetings
+    message HelloReply {
+      string message = 1;
+    }
+Above you can see the simple service calls like 'SayHello' and 'SayHelloAgain'. These are called **unary RPCs**. Other kinds of RPCs are **server streaming**, **client streaming** and **bidirectional streaming**
+    
+    rpc LotsOfReplies(HelloRequest) returns (stream HelloResponse)   {} //server streaming
+    rpc LotsOfGreetings(stream HelloRequest) returns (HelloResponse) {} //client streaming
+    rpc BidiHello(stream HelloRequest) returns (stream HelloResponse){} //bidirectional streaming
+    
+Now you need to generate code for this proto definitions. For this we use protoc. This allows you to generate gRPC client and server code, as well as the regular protocol buffer code for populating, serializing, and retrieving your message types.
+On the server side, the server implements the methods declared by the service and runs a gRPC server to handle client calls. The gRPC infrastructure decodes incoming requests, executes service methods, and encodes service responses.
+On the client side, the client has a local object known as stub (for some languages, the preferred term is client) that implements the same methods as the service. The client can then just call those methods on the local object, wrapping the parameters for the call in the appropriate protocol buffer message type - gRPC looks after sending the request(s) to the server and returning the server’s protocol buffer response(s).
+We will be covering just the unary gRPC. Now lets compile the proto file and generate code. 
+    
+    $ python -m grpc_tools.protoc -I<<path where your proto file is>> --python_out=. --grpc_python_out=. <<path where your proto file is>>\helloworld.proto
+
+This should generate **helloworld_pb2** and **helloworld_pb2_grpc**.
+Now lets write the greeter_server.py
+    
+    from concurrent import futures
+    import time
+    import grpc
+    import helloworld_pb2
+    import helloworld_pb2_grpc
+
+    _ONE_DAY_IN_SECONDS = 60 * 60 * 24
+
+    class Greeter(helloworld_pb2_grpc.GreeterServicer):
+
+        def SayHello(self, request, context):
+            return helloworld_pb2.HelloReply(message='Hello, %s!' % request.name)
+
+        def SayHelloAgain(self, request, context):
+            return helloworld_pb2.HelloReply(message='Hello again, %s!' % request.name)
+    
+    def serve():
+        server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+        helloworld_pb2_grpc.add_GreeterServicer_to_server(Greeter(), server)
+        server.add_insecure_port('[::]:50051')
+        server.start()
+        try:
+            while True:
+                time.sleep(_ONE_DAY_IN_SECONDS)
+        except KeyboardInterrupt:
+        server.stop(0)
+
+    if __name__ == '__main__':
+        serve()
+And write greeter_client.py
+    
+    import grpc
+    import sys
+    import helloworld_pb2
+    import helloworld_pb2_grpc
+
+
+    def run():
+        channel = grpc.insecure_channel('localhost:50051')
+        stub = helloworld_pb2_grpc.GreeterStub(channel)
+        response = stub.SayHello(helloworld_pb2.HelloRequest(name=sys.argv[1]))
+        print("Greeter client received: " + response.message)
+        response = stub.SayHelloAgain(helloworld_pb2.HelloRequest(name=sys.argv[1]))
+        print("Greeter client received: " + response.message)
+        channel.close()
+
+    if __name__ == '__main__':
+        run()
+
+And you are all set!! on a new command window, run your greeting_server
+    
+    $ python greeter_server.py
+In another terminal, run the client
+    
+    $ python greeter_client.py sampleText
