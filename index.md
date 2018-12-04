@@ -1,7 +1,7 @@
 
 # Overview
 
-This tutorial will discuss what remote procedure calls (gRPC) and protocol buffers (protof) are.
+This tutorial will discuss what remote procedure calls (gRPC) and protocol buffers (protobuf) are.
 we will start with some very brief background, followed by two python based quick start guides that will have you up and running, 
 after those guides, there will be some additional details. Anything we miss can be found in the full 
 documentation for [Protocol Buffers](https://developers.google.com/protocol-buffers/docs/pythontutorial) and [gRPC](https://grpc.io/)
